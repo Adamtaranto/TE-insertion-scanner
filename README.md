@@ -17,13 +17,13 @@ Align query to target genome using LASTZ
 
 Predict candidate insertion events and TSDs using insert finder
 ```bash
-./insert-scanner.py -i outdir/query2target_90_concat.tab \ 
---maxTSD 100 \ 
---maxInsert 20000 \ 
---minInsert 100 \ 
---qGap 50 \ 
---minIdent 80 \ 
---maxIdentDiff 20 \ 
---outDir outdir \ 
+./insert-scanner.py -i outdir/query2target_90_concat.tab \
+--maxTSD 100 \
+--maxInsert 20000 \
+--minInsert 100 \
+--qGap 50 \
+--minIdent 80 \
+--maxIdentDiff 20 \
+--outDir outdir \
 --gffOut inserts.gff3
 ```
