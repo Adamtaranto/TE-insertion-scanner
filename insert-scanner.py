@@ -112,10 +112,10 @@ def getTSD(pair,parentID):
 	elif (pair[1].q_strand == '-' and pair[1].q_start < pair[2].q_end ):
 		TSDlen = pair[2].q_end - pair[1].q_start
 	if TSDlen:
-		TSDl_start = pair[2].t_start
-		TSDl_end = pair[2].t_start + TSDlen
-		TSDr_start = pair[1].t_end - TSDlen
-		TSDr_end = pair[1].t_end
+		TSDr_start = pair[2].t_start
+		TSDr_end = pair[2].t_start + TSDlen
+		TSDl_start = pair[1].t_end - TSDlen
+		TSDl_end = pair[1].t_end
 		strand = pair[1].q_strand
 		seqid = str(pair[0][0])
 		source = 'InsertFinder'
