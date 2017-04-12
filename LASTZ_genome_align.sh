@@ -8,9 +8,9 @@ minIdt="60"
 minLen="100"
 outdir="outdir"
 prefix="genome_alignment"
-LZ="lastz"
+LZ="/usr/local/bin/lastz"
 
-while getopts ":d:p:t:q:i:l:z:" opt; do #Options followed by ":" expect an arguement.
+while getopts "d:p:t:q:i:l:z:" opt; do #Options followed by ":" expect an arguement.
 	case "$opt" in
 	z)	LZ=$OPTARG
 		if [ ! -f "$LZ" ]; then
@@ -22,10 +22,11 @@ while getopts ":d:p:t:q:i:l:z:" opt; do #Options followed by ":" expect an argue
 	i)	minIdt=$OPTARG
 		echo "Setting min identity threshold at $OPTARG %" >&2
 		;;
-	l)	minLen=OPTARG
+	l)	minLen=$OPTARG
 		echo "Setting min hit length threshold to $OPTARG" >&2
 		;;
 	d)	outdir=$OPTARG
+		echo "Setting output directory to $OPTARG" >&2
 		;;
 	p)	prefix=$OPTARG
 		;;
@@ -55,10 +56,11 @@ shift $((OPTIND-1))
 
 [ "$1" = "--" ] && shift
 
-echo "output_file='$output_file', Leftovers: $@"
+echo "Leftovers: $@"
 
 # Housekeeping
 if [ ! -d "$outdir" ]; then
+	echo "Creating output directory $outdir" >&2
 	mkdir $outdir # Make output directory if does not exist
 fi
 
@@ -68,32 +70,30 @@ out_tab=$(echo $outdir"/"$prefix"_concat.tab")
 
 # Scrub old results
 if [ -f "$out_gff" ]; then
-	echo "Removing old output file: $out_gff"
+	echo "Removing old output file: $out_gff" >&2
 	rm $out_gff
 fi
 
 # Scrub old results
 if [ -f "$out_tab" ]; then
-	echo "Removing old output file: $out_tab"
+	echo "Removing old output file: $out_tab" >&2
 	rm $out_tab
 fi
 
 # Initialise output files
-echo -e "##gff-version 3\n#seqid\tsource\ttype\tstart\tend\tscore\tstrand\tphase\tattributes\n" > $out_gff
-echo -e "#name1\tstrand1\tstart1\tend1\tname2\tstrand2\tstart2+\tend2+\tscore\tidentity\n" > $out_tab
+echo $'##gff-version 3\n#seqid\tsource\ttype\tstart\tend\tscore\tstrand\tphase\tattributes' > $out_gff
+echo $'#name1\tstrand1\tstart1\tend1\tname2\tstrand2\tstart2+\tend2+\tscore\tidentity' > $out_tab
 
 # Run alignments
-for target in $(find $tdata -regex ".*\.\(fa\|fasta\|fsa\)" | sort)
+for target in $(find $tdata -type f \( -name "*.fa" -or -name "*.fasta" -or -name "*.fsa" \) | sort)
 do
-	for query in $(find $qdata -regex ".*\.\(fa\|fasta\|fsa\)" | sort)
+	for query in $(find $qdata -type f \( -name "*.fa" -or -name "*.fasta" -or -name "*.fsa" \) | sort)
 	do
 	t_file=$(basename $target)
 	t_name="${t_file%.*}"
 	q_file=$(basename $query)
 	q_name="${q_file%.*}"
 	outfile=$(echo $outdir"/"$t_name".vs."$q_name".tab")
-	outfile_filtered=$(echo $outfile"_filtered.bed")
-	outfile_filtered_sorted=$(echo $outfile"_filtered_sorted.bed")
 	feature=$(echo $q_name"_ident")
 	$LZ $target $query \
 	--gfextend \
@@ -111,15 +111,13 @@ do
 	sed -i '' -e 's/%//g' $outfile
 	## Filter Inter_Chrome targets to min len $minLen [100], min identity $minIdt [90]
 	## New fields = name1,strand1,start1,end1,name2,strand2,start2+,end2+,score,identity
-	awk '!/^#/ { print; }' $outfile | awk -v minLen="$minLen" '0+$5 >= minLen {print ;}' | awk -v OFS='\t' -v minIdt="$minIdt" '0+$13 >= minIdt {print $1,$2,$3,$4,$6,$7,$8,$9,$11,$13;}' | sed 's/ //g' > $outfile_filtered
 	## Sort filtered bed file by chrom, start, stop
-	sort -k 1,1 -k 3n,4n $outfile_filtered >> $out_tab
+	echo "Alignment finished, writing hits: $out_tab" >&2
+	awk '!/^#/ { print; }' $outfile | awk -v minLen="$minLen" '0+$5 >= minLen {print ;}' | awk -v OFS='\t' -v minIdt="$minIdt" '0+$13 >= minIdt {print $1,$2,$3,$4,$6,$7,$8,$9,$11,$13;}' | sed 's/ //g' | sort -k 1,1 -k 3n,4n >> $out_tab
+	## Create GFF3 file for merged filtered hits
+	echo "Writing filtered hits to gff3: $out_gff" >&2
+	awk '!/^#/ {print ;}' $out_tab | awk -v OFS='\t' -v q_name="$q_name" 'BEGIN{i=0}{i++;}{j=sprintf("%09d",i)}{print $1,"LASTZ","'"$feature"'",$3,$4,$9,$2,".","ID=LZ_hit_"q_name"_"j";Idt="$10";Target="$5"_"$6"_"$7"_"$8 ;}' >> $out_gff
 	rm $outfile
-	rm $outfile_filtered
 	done
 done
-
-## Create GFF3 file for merged filtered hits
-awk -v OFS='\t' '!/^#/ BEGIN{i=0}{i++;}{j= sprintf("%09d", i)}{print $1,"LASTZ","'"$feature"'",$3,$4,$9,$2,".","ID=LZ_Targets_"j";Idt="$10";Target="$5"_"$6"_"$7"_"$8 ;}' $out_tab >> $out_gff
-
 # End of file

@@ -20,7 +20,7 @@ def dochecks(args):
 		outDir = args.outDir
 	else:
 		outDir = os.getcwd() 
-	return os.path.join(outDir,args.outfile)
+	return os.path.join(outDir,args.gffOut)
 
 def tempPathCheck(args):
 	absOutDir = os.path.abspath(args.outDir)
@@ -102,8 +102,8 @@ def formatGFFline(pair,featureID):
 	rightflank = pair[0][1] + '_' + pair[2].q_strand + '_' + str(pair[2].q_start) + '_' + str(pair[2].q_end)
 	attributes  = 'ID=' + str(featureID) + ';len=' + str(end - start) + \
 								';leftflank=' + leftflank + ';rightflank=' + rightflank + \
-								';leftID=' + str(pair[1].idPct) + ';rightID=' + str(pair[2].idPct)
-	return '\t'.join(seqid,source,feature_type,str(start),str(end),score,strand,phase,attributes)
+								';leftID=' + str(pair[1].idPct) + ';rightID=' + str(pair[2].idPct) + '\n'
+	return '\t'.join([seqid,source,feature_type,str(start),str(end),score,strand,phase,attributes])
 
 def getTSD(pair,parentID):
 	TSDlen = None
@@ -120,23 +120,23 @@ def getTSD(pair,parentID):
 		seqid = str(pair[0][0])
 		source = 'InsertFinder'
 		feature_type = "TSD"
-		attributesR  = 'ID=' + str(parentID) + '_TSD_R' + ';Parent=' + parentID + ';len=' + str(TSDlen)
-		attributesL  = 'ID=' + str(parentID) + '_TSD_L' + ';Parent=' + parentID + ';len=' + str(TSDlen)
+		attributesR  = 'ID=' + str(parentID) + '_TSD_R' + ';Parent=' + parentID + ';len=' + str(TSDlen) + '\n'
+		attributesL  = 'ID=' + str(parentID) + '_TSD_L' + ';Parent=' + parentID + ';len=' + str(TSDlen) + '\n'
 		# Yield left
-		yield '\t'.join(seqid,source,feature_type,str(TSDl_start),str(TSDl_end),'.',strand,'.',attributesL)
+		yield '\t'.join([seqid,source,feature_type,str(TSDl_start),str(TSDl_end),'.',strand,'.',attributesL])
 		# Yield right
-		yield '\t'.join(seqid,source,feature_type,str(TSDr_start),str(TSDr_end),'.',strand,'.',attributesR)
+		yield '\t'.join([seqid,source,feature_type,str(TSDr_start),str(TSDr_end),'.',strand,'.',attributesR])
 	else:
 		return None
 
 def writeGFFlines(validPairs):
-	yield '#GFF version 3 \n'
+	yield '#gff-version 3\n#seqid\tsource\ttype\tstart\tend\tscore\tstrand\tphase\tattributes\n'
 	counter = 0
 	fillLen = len(str(abs(len(validPairs)))) + 1
 	for pair in validPairs:
 		counter += 1
 		featureID = 'IS_' + str(counter).zfill(fillLen)
-		yield formatGFFline(pair)
+		yield formatGFFline(pair,featureID)
 		TSDline = getTSD(pair,featureID)
 		if TSDline:
 			for x in TSDline:
