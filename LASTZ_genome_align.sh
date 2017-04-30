@@ -65,7 +65,7 @@ if [ ! -d "$outdir" ]; then
 fi
 
 # Make empty output files
-out_gff=$(echo $outdir"/"$prefix".gff3")
+out_gff=$(echo $outdir"/"$prefix"_raw_alignments.gff3")
 out_tab=$(echo $outdir"/"$prefix"_concat.tab")
 
 # Scrub old results
@@ -94,7 +94,7 @@ do
 	q_file=$(basename $query)
 	q_name="${q_file%.*}"
 	outfile=$(echo $outdir"/"$t_name".vs."$q_name".tab")
-	feature=$(echo $q_name"_ident")
+	#feature=$(echo $q_name"_ident")
 	$LZ $target $query \
 	--gfextend \
 	--chain \
@@ -116,7 +116,8 @@ do
 	awk '!/^#/ { print; }' $outfile | awk -v minLen="$minLen" '0+$5 >= minLen {print ;}' | awk -v OFS='\t' -v minIdt="$minIdt" '0+$13 >= minIdt {print $1,$2,$3,$4,$6,$7,$8,$9,$11,$13;}' | sed 's/ //g' | sort -k 1,1 -k 3n,4n >> $out_tab
 	## Create GFF3 file for merged filtered hits
 	echo "Writing filtered hits to gff3: $out_gff" >&2
-	awk '!/^#/ {print ;}' $out_tab | awk -v OFS='\t' -v q_name="$q_name" 'BEGIN{i=0}{i++;}{j=sprintf("%09d",i)}{print $1,"LASTZ","'"$feature"'",$3,$4,$9,$2,".","ID=LZ_hit_"q_name"_"j";Idt="$10";Target="$5"_"$6"_"$7"_"$8 ;}' >> $out_gff
+	#awk '!/^#/ {print ;}' $out_tab | awk -v OFS='\t' -v q_name="$q_name" 'BEGIN{i=0}{i++;}{j=sprintf("%09d",i)}{print $1,"LASTZ","'"$feature"'",$3,$4,$9,$2,".","ID=LZ_hit_"q_name"_"j";Idt="$10";Target="$5"_"$6"_"$7"_"$8 ;}' >> $out_gff
+	awk '!/^#/ {print ;}' $out_tab | awk -v OFS='\t' -v q_name="$q_name" 'BEGIN{i=0}{i++;}{j=sprintf("%09d",i)}{print $1,"LASTZ","Raw_Alignment",$3,$4,$9,$2,".","ID=LZ_hit_"q_name"_"j";Idt="$10";Target="$5"_"$6"_"$7"_"$8 ;}' >> $out_gff
 	rm $outfile
 	done
 done
