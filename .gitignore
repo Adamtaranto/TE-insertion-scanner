@@ -1,6 +1,7 @@
 #Testing
 data/
 outdir/
+src/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
