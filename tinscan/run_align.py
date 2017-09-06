@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import .LASTZ_wrapper as lz
+from .LASTZ_wrapper import *
 import argparse
 import shutil
 import sys
@@ -35,9 +35,13 @@ def set_paths(args):
 	if not os.path.isdir(args.adir):
 		print("Target sequence directory not found: %s" % args.adir)
 		sys.exit(1)
+	else:
+		adir = os.path.abspath(args.adir)
 	if not os.path.isdir(args.bdir):
 		print("Query sequence directory not found: %s" % args.bdir)
 		sys.exit(1)
+	else:
+		bdir = os.path.abspath(args.bdir)
 	# Set outdir
 	if args.outdir:
 		outdir = os.path.abspath(args.outdir)
@@ -47,7 +51,7 @@ def set_paths(args):
 		outdir = os.getcwd()
 	# Compose path to outfile
 	outtab = os.path.join(outdir,args.outfile)
-	return args.adir,args.bdir,outdir,outtab
+	return adir,bdir,outdir,outtab
 
 def main():
 	'''Do the work.'''
@@ -61,12 +65,13 @@ def main():
 	adir_path,bdir_path,outdir,outtab = set_paths(args)
 	# Import file names to be compaired if set
 	if args.pairs and os.path.isfile(args.pairs):
-		pairs = lz.import_pairs(file=os.path.abspath(args.pairs),Adir=adir_path,Bdir=bdir_path)
+		pairs = import_pairs(file=os.path.abspath(args.pairs),Adir=adir_path,Bdir=bdir_path)
 	# Else run all pairwise alignments between A and B genomes
 	else:
-		pairs = lz.get_all_pairs(Adir=adir_path,Bdir=bdir_path)
+		pairs = get_all_pairs(Adir=adir_path,Bdir=bdir_path)
 	# Compose alignment commands
-	cmds = lz.LASTZ_cmds(lzpath=args.lzpath,pairs=pairs,minIdt=args.minIdt,minLen=args.minLen, 
+	cmds = LASTZ_cmds(lzpath=args.lzpath,pairs=pairs,minIdt=args.minIdt,minLen=args.minLen, 
 		hspthresh=args.hspthresh,outfile=outtab,verbose=args.verbose)
 	# Run alignments
-	lz.run_cmd(cmds,verbose=args.verbose)
+	run_cmd(cmds,verbose=args.verbose)
+	print("Finished!")

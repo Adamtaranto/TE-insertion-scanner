@@ -10,8 +10,8 @@ def mainArgs():
 	parser.add_argument('-A','--target',type=str,required=True,help='Multifasta containing A genome.')
 	parser.add_argument('-B','--query',type=str,required=True,help='Multifasta containing B genome.')
 	# Output options
-	parser.add_argument('--bdir',type=str,default=None,help='B genome sub-directory within outdir')
 	parser.add_argument('--adir',type=str,default=None,help='A genome sub-directory within outdir')
+	parser.add_argument('--bdir',type=str,default=None,help='B genome sub-directory within outdir')
 	parser.add_argument('-d','--outdir',type=str,default=None,help='Write split directories within this directory. (Default: cwd)')
 	args = parser.parse_args()
 	return args

@@ -5,7 +5,7 @@ import os
 import sys
 
 def mainArgs():
-		parser = argparse.ArgumentParser(description='Parse whole genome alignments for signatures of transposon insertion.', prog='tinscan-scan')
+		parser = argparse.ArgumentParser(description='Parse whole genome alignments for signatures of transposon insertion.', prog='tinscan-find')
 		# Input
 		parser.add_argument('-i','--infile',type=str,required=True,help='Input file containing tab delimited LASTZ alignment data.')
 		# Output

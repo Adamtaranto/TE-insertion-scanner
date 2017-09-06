@@ -42,9 +42,9 @@ def LASTZ_cmds(lzpath="lastz",pairs=None,minIdt=60,minLen=100, hspthresh=3000,ou
 	cmds.append(' '.join(["echo $'#name1\\tstrand1\\tstart1\\tend1\\tname2\\tstrand2\\tstart2+\\tend2+\\tscore\\tidentity' >", outfile]))
 	for A,B in pairs:
 		t_file=A
-		t_name=os.path.basename(A)
+		t_name=os.path.splitext(os.path.basename(A))[0]
 		q_file=B
-		q_name=os.path.basename(B)
+		q_name=os.path.splitext(os.path.basename(B))[0]
 		temp_outfile= '_'.join(["temp",q_name,"onto",t_name,".tab"])
 		# Compose LASTZ command
 		cmds.append(' '.join([lzpath,t_file,q_file,"--entropy --format=general:name1,strand1,start1,end1,length1,name2,strand2,start2+,end2+,length2,score,identity --markend --gfextend --chain --gapped --step=1 --strand=both --hspthresh=" + str(hspthresh),"--output=" + temp_outfile, "--verbosity=" + str(verb)]))
@@ -88,5 +88,6 @@ def run_cmd(cmds,verbose=False):
 	syscall('bash ' + script, verbose=verbose)
 	os.chdir(original_dir)
 	shutil.rmtree(tmpdir)
+
 
 
