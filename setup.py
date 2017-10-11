@@ -20,7 +20,7 @@ install_requires = [
 desc = """Find alignment signatures characteristic of transposon insertion sites."""
 
 setup(name='tinscan',
-      version='0.1.0',
+      version='0.2.0',
       description=desc,
       url='https://github.com/Adamtaranto/TE-insertion-scanner',
       author='Adam Taranto',
