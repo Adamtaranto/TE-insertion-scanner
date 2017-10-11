@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-from Bio import SeqIO
-import argparse
-import sys
 import os 
+import sys
+import argparse
+from Bio import SeqIO
+from shlex import quote
 
 def mainArgs():
 	parser = argparse.ArgumentParser(description='Split multifasta genome files into directories for A and B genomes.',prog='tinscan-prep')
@@ -31,7 +32,7 @@ def	splitFasta(infile,outdir,unique=True):
 def isfile(path):
 	path = os.path.abspath(path)
 	if not os.path.isfile(path):
-		print("Input file not found: %s" % path)
+		print("Input file not found: %s" % quote(path))
 		sys.exit(1)
 	else:
 		return path

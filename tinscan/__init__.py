@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from .LASTZ_wrapper import *
 from collections import namedtuple
 
 def readLASTZ(infile,minID=90):

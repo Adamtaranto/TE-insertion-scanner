@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from .LASTZ_wrapper import *
+import tinscan
 import argparse
 import shutil
 import sys
@@ -14,7 +14,7 @@ def mainArgs():
 	# Output options
 	parser.add_argument('-d', '--outdir',type=str,default=None,help='Write output files to this directory. (Default: cwd)')
 	parser.add_argument('--outfile',type=str,default="tinscan_alignment.tab",help='Name of alignment result file.')
-	parser.add_argument('--verbose',action="store_true",default=False,help='If set report LASTZ progress.')
+	parser.add_argument('-v','--verbose',action="store_true",default=False,help='If set report LASTZ progress.')
 	# LASTZ options
 	parser.add_argument('--lzpath',type=str,default="lastz",help='Custom path to LASTZ executable if not in $PATH.')
 	parser.add_argument('--minIdt',type=int,default=60,help='Minimum alignment identity to report.')
@@ -65,13 +65,13 @@ def main():
 	adir_path,bdir_path,outdir,outtab = set_paths(args)
 	# Import file names to be compaired if set
 	if args.pairs and os.path.isfile(args.pairs):
-		pairs = import_pairs(file=os.path.abspath(args.pairs),Adir=adir_path,Bdir=bdir_path)
+		pairs = tinscan.import_pairs(file=os.path.abspath(args.pairs),Adir=adir_path,Bdir=bdir_path)
 	# Else run all pairwise alignments between A and B genomes
 	else:
-		pairs = get_all_pairs(Adir=adir_path,Bdir=bdir_path)
+		pairs = tinscan.get_all_pairs(Adir=adir_path,Bdir=bdir_path)
 	# Compose alignment commands
-	cmds = LASTZ_cmds(lzpath=args.lzpath,pairs=pairs,minIdt=args.minIdt,minLen=args.minLen, 
+	cmds = tinscan.LASTZ_cmds(lzpath=args.lzpath,pairs=pairs,minIdt=args.minIdt,minLen=args.minLen, 
 		hspthresh=args.hspthresh,outfile=outtab,verbose=args.verbose)
 	# Run alignments
-	run_cmd(cmds,verbose=args.verbose)
+	tinscan.run_cmd(cmds,verbose=args.verbose)
 	print("Finished!")
