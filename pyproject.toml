@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tinscan"
+description = """Find alignment signatures characteristic of transposon insertion sites."""
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Adam Taranto", email = "adam.p.taranto@gmail.com" }
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "License :: OSI Approved :: MIT License",
+]
+
+dependencies = ["biopython>=1.70"]
+
+    
+dynamic = ["version"]
+
+[project.urls]
+homepage = "https://github.com/adamtaranto/TE-insertion-scanner"
+documentation = "https://github.com/adamtaranto/TE-insertion-scanner"
+repository = "https://github.com/adamtaranto/TE-insertion-scanner"
+
+[project.scripts]
+tinscan-prep = "tinscan.run_prep:main"
+tinscan-align = "tinscan.run_align:main"
+tinscan-find = "tinscan.run_scan:main"
+
+
+[tool.hatch.build]
+source = "src"
+
+exclude = [
+    "environment.yml",
+    "env_osx64.yml",
+]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.vcs]
+tag-pattern = "v*"  # Git tags starting with 'v' will be used for versioning
+fallback-version = "0.0.0"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/tinscan/_version.py"
+
+[project.optional-dependencies]
+tests = ["pytest"]
