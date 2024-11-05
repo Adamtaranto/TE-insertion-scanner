@@ -1,0 +1,12 @@
+name: tinscan
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python 3.12
+  - lastz
+  - pip
+  - pip:
+      - biopython
+      - hatch
+      - pytest
